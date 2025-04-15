@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Editor Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dist/styles.css">
+    <style>
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0f0f0f;
+            color: #f5f5f5;
+        }
+        nav {
+            position: fixed; /* Tetap di atas saat scroll */
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: black;
+            padding: 15px 30px;
+            color: white;
+            z-index: 1000; /* Penting agar di atas elemen lain */
+            display: flex;
+            justify-content: flex-end;
+            gap: 20px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Section di bawah navbar */
+        .hero {
+            padding-top: 100px; /* Beri jarak agar konten tidak tertutup navbar */
+            background: #1c1c1c;
+            color: white;
+            height: 100vh;
+        }
+
+        .video-wrapper {
+            position: relative;
+            z-index: 1; /* Pastikan ini tidak lebih tinggi dari navbar */
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(45,45,45,0.8) 100%);
+        }
+        .project-card {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+        }
+        .project-card:hover .project-overlay {
+            opacity: 1;
+        }
+        .project-overlay {
+            background: rgba(0,0,0,0.7);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .skill-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.2);
+        }
+        .skill-progress {
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #ff4d4d 0%, #f9cb28 100%);
+        }
+        .video-thumbnail {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        .video-thumbnail::before {
+            content: "";
+            display: block;
+            padding-top: 50%; /* 1:2 */
+        }
+        .video-thumbnail-home::before {
+            content: "";
+            display: block;
+            padding-top: 100%; /* 16:9 */
+        }
+        .video-thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255,77,77,0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .video-thumbnail:hover .play-button {
+            opacity: 1;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: #ff4d4d;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -5px;
+            top: 5px;
+            width: 12px;
+            border-radius: 50%;
+            background: #ff4d4d;
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #ff4d4d;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .flex.space-x-4 {
+            display: flex;
+            justify-content: start; /* Atur posisi horizontal */
+            gap: 1rem; /* Jarak antar ikon */
+        }
+        .border-none {
+            border: none;
+        }
+
+        /* Media query untuk layar kecil (ponsel) */
+        @media (max-width: 768px) {
+            /* Pastikan navbar tetap rapi */
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px 20px;
+            }
+
+            nav a {
+                margin-bottom: 10px;
+            }
+
+            /* Hero section */
+            .hero {
+                padding-top: 80px; /* Sesuaikan jarak agar tidak tertutup navbar */
+                text-align: center;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero h2 {
+                font-size: 1.5rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .hero .flex {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            /* About section */
+            #about .flex {
+                flex-direction: column;
+            }
+
+            #about .md:w-1/2 {
+                width: 100%;
+                padding: 0;
+            }
+
+            /* Portfolio grid */
+            .grid {
+                grid-template-columns: 1fr; /* Satu kolom untuk layar kecil */
+            }
+
+            /* Testimoni grid */
+            #testimoni .grid {
+                grid-template-columns: 1fr; /* Satu kolom untuk layar kecil */
+            }
+
+            /* Contact form */
+            #contact .grid {
+                grid-template-columns: 1fr; /* Satu kolom untuk layar kecil */
+            }
+
+            /* Tombol filter */
+            .filter-btn {
+                width: 100%; /* Tombol filter memenuhi lebar layar */
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-black bg-opacity-90 fixed w-full z-1000">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="text-xl font-bold text-white flex items-center">
+                <span class="text-red-500 mr-1">PORTO</span>FOLIO
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#home" class="text-gray-300 hover:text-white transition nav-link">Home</a>
+                <a href="#about" class="text-gray-300 hover:text-white transition nav-link">About</a>
+                <a href="#experience" class="text-gray-300 hover:text-white transition nav-link">My Experience</a>
+                <a href="#portfolio" class="text-gray-300 hover:text-white transition nav-link">Portfolio</a>
+                <a href="#contact" class="text-gray-300 hover:text-white transition nav-link">Contact</a>
+                <a href="#testimoni" class="text-gray-300 hover:text-white transition nav-link">Testimoni</a>
+            </div>
+            <button class="md:hidden focus:outline-none" id="menu-toggle">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden bg-black bg-opacity-95 w-full py-2 px-4" id="mobile-menu">
+            <a href="#home" class="block py-2 text-gray-300 hover:text-white">Home</a>
+            <a href="#about" class="block py-2 text-gray-300 hover:text-white">About</a>
+            <a href="#experience" class="block py-2 text-gray-300 hover:text-white">My Experience</a>
+            <a href="#portfolio" class="block py-2 text-gray-300 hover:text-white">Portfolio</a>
+            <a href="#contact" class="block py-2 text-gray-300 hover:text-white">Contact</a>
+            <a href="#testimoni" class="block py-2 text-gray-300 hover:text-white">Testimoni</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-gradient min-h-screen flex items-center pt-16 relative">
+        <div class="absolute inset-0 overflow-hidden">
+            <svg class="absolute left-0 bottom-0 h-full w-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+                <path fill="#ff4d4d" fill-opacity="0.1" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,250.7C960,235,1056,181,1152,165.3C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            </svg>
+        </div>
+        <div class="container mx-auto px-4 py-16 relative z-10">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 text-white mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">Radika Putra Pratama</h1>
+                    <h2 class="text-2xl md:text-3xl mb-6 text-red-500">Professional Video Editor</h2>
+                    <p class="text-lg mb-8 opacity-90">Transforming raw footage into compelling visual stories with creative editing, motion graphics, and color grading.</p>
+                    <div class="flex space-x-4">
+                        <a href="#portfolio" class="bg-red-500 text-white px-6 py-3 rounded-full font-medium hover:bg-red-600 transition">View Portfolio</a>
+                        <a href="#contact" class="border-2 border-white text-white px-6 py-3 rounded-full font-medium hover:bg-white hover:text-gray-900 transition">Contact Me</a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="relative w-full max-w-md">
+                        <div class="video-thumbnail-home shadow-2xl border-4 border-gray-800 relative z-0">
+                            <img 
+                                src="assets/KTR027804X5.jpg" 
+                                alt="Profile Photo" 
+                                class="absolute inset-0 w-full h-full object-cover z-0"
+                            />
+                        </div>
+                        <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-red-500 rounded-lg flex items-center justify-center">
+                            <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm3 2h6v4H7V5zm8 8v2h1v-2h-1zm-2-2H7v4h6v-4zm2 0h1V9h-1v2zm1-4V5h-1v2h1zM5 5v2H4V5h1zm0 4H4v2H5V9zm-1 4h1v2H4v-2z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-gray-900">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-white">About Me</h2>
+                <div class="w-16 h-1 bg-red-500 mx-auto mt-3 mb-6"></div>
+                <p class="text-gray-400 max-w-2xl mx-auto">My journey and expertise in video editing</p>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <div class="relative">
+                        <div class="w-full h-80 md:h-96 bg-gray-800 rounded-lg overflow-hidden">
+                            <img src="assets/foto-about.png" alt="Your Photo" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -bottom-5 -right-5 w-32 h-32 bg-red-500 rounded-lg flex items-center justify-center">
+                            <span class="text-white text-4xl font-bold">5+</span>
+                        </div>
+                        <div class="absolute -bottom-5 -right-5 w-32 h-32 bg-transparent border-4 border-red-500 rounded-lg -m-3"></div>
+                    </div>
+                </div>
+                
+                <div class="md:w-1/2 md:pl-12">
+                    <h3 class="text-2xl font-semibold text-white mb-4">Who I Am</h3>
+                    <p class="text-gray-400 mb-6">Experienced video editor with a background in multimedia and a specialization in visual content production for commercial, event, and social media purposes. Proficient in using Adobe Premiere Pro, Photoshop, Lightroom, and CapCut, with a strong understanding of the creative workflow from concept development to editing and final output.</p>
+                    <p class="text-gray-400 mb-8">Able to work independently or collaboratively in a team, consistently delivering engaging visuals aligned with content plans and storyboards.</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-white">Adobe Premiere Pro</span>
+                                <span class="text-gray-400">80%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 80%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-white">Adobe Lightroom</span>
+                                <span class="text-gray-400">90%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-white">Adobe Photoshop</span>
+                                <span class="text-gray-400">80%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 80%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-white">CapCut</span>
+                                <span class="text-gray-400">90%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 90%"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between mb-1">
+                            <span class="text-white">Canva</span>
+                            <span class="text-gray-400">85%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <section id="experience" class="py-20 bg-gray-900">
+                <div class="container mx-auto px-4">
+                    <h3 class="text-2xl font-semibold text-white mb-8 text-center">My Experience</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="timeline-item bg-gray-800 p-6 rounded-lg">
+                            <div class="timeline-dot"></div>
+                        <h4 class="text-xl font-medium text-white mb-2">Videographer & Video Editor</h4>
+                        <p class="text-red-500 mb-4">Kastara Picture. | Juli 2024 - Oktober 2024</p>
+                        <p class="text-gray-400">Responsible for end-to-end video production, including concept development, shooting, and post-production. Tasks included creating storyboards, setting up lighting and camera equipment, editing footage using professional software (Adobe Premiere Pro, After Effects), adding motion graphics, and performing color grading. Played a key role in maintaining visual quality and ensuring the final output aligned with the client’s branding and objectives.</p>
+                    </div>
+                    
+                    <div class="timeline-item bg-gray-800 p-6 rounded-lg">
+                        <div class="timeline-dot"></div>
+                        <h4 class="text-xl font-medium text-white mb-2">Digital Marketing & Video Editor</h4>
+                        <p class="text-red-500 mb-4">BubbleBubble,id | November 2024 - Maret 2025</p>
+                        <p class="text-gray-400">Created engaging video content for digital campaigns, including social media, websites, and email marketing. Edited and optimized videos to align with brand messaging and enhance audience engagement. Collaborated with the digital marketing team to develop effective visual storytelling strategies, resulting in improved viewer retention and campaign performance.</p>
+                    </div>
+                    
+                    <div class="timeline-item bg-gray-800 p-6 rounded-lg">
+                        <div class="timeline-dot"></div>
+                        <h4 class="text-xl font-medium text-white mb-2">Freelance Video Editor</h4>
+                        <p class="text-red-500 mb-4">Self-employed | September 2024 - Until Now</p>
+                        <p class="text-gray-400">Worked on various video projects for both online and offline clients, including business promotional videos, social media content, company profiles, and event documentation. Responsible for the entire editing process—from cutting footage, color grading, adding visual and audio effects, to delivering the final output tailored to each client's needs. Able to adapt to different editing styles and maintain clear communication to fully understand the client’s vision.</p>
+                    </div>
+                    
+                    <div class="timeline-item bg-gray-800 p-6 rounded-lg">
+                        <div class="timeline-dot"></div>
+                        <h4 class="text-xl font-medium text-white mb-2">-</h4>
+                        <p class="text-red-500 mb-4">- | -</p>
+                        <p class="text-gray-400">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="py-20 bg-black">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-white">My Portfolio</h2>
+                <div class="w-16 h-1 bg-red-500 mx-auto mt-3 mb-6"></div>
+                <p class="text-gray-400 max-w-2xl mx-auto">A selection of my best video editing work</p>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="mb-8 flex flex-wrap justify-center gap-4">
+                <button class="filter-btn px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-red-500 transition active" data-filter="all">All Projects</button>
+                <button class="filter-btn px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-red-500 transition" data-filter="commercials">Commercials</button>
+                <button class="filter-btn px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-red-500 transition" data-filter="music-videos">Music Videos</button>
+                <button class="filter-btn px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-red-500 transition" data-filter="corporate">Corporate</button>
+                <button class="filter-btn px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-red-500 transition" data-filter="short-films">Short Films</button>
+                <button class="filter-btn px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-red-500 transition" data-filter="documentary">Documentary</button>
+                <button class="filter-btn px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-red-500 transition" data-filter="color-grading">Color Grading</button>
+            </div>
+
+            <!-- Projects Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Project 1 -->
+                <div class="project-card bg-gray-900 rounded-lg overflow-hidden" data-category="commercials">
+                    <div class="relative">
+                        <div class="video-thumbnail">
+                            <iframe 
+                                src="https://www.youtube.com/embed/your link" 
+                                title="Luxury Car Commercial" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen 
+                                class="w-full h-64 rounded-lg">
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xl font-semibold text-white">Luxury Car Commercial</h3>
+                            <span class="text-xs bg-red-500 text-white px-2 py-1 rounded">Commercial</span>
+                        </div>
+                        <p class="text-gray-400 mb-4">A dynamic commercial for a luxury car brand featuring cinematic transitions and color grading.</p>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="project-card bg-gray-900 rounded-lg overflow-hidden" data-category="music-videos">
+                    <div class="relative">
+                        <div class="video-thumbnail">
+                            <iframe 
+                                src="https://www.youtube.com/embed/your link" 
+                                title="Indie Band Music Video" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen 
+                                class="w-full h-64 rounded-lg">
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xl font-semibold text-white">Indie Band Music Video</h3>
+                            <span class="text-xs bg-red-500 text-white px-2 py-1 rounded">Music Video</span>
+                        </div>
+                        <p class="text-gray-400 mb-4">A creative music video with experimental transitions and visual effects for an indie rock band.</p>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="project-card bg-gray-900 rounded-lg overflow-hidden" data-category="corporate">
+                    <div class="relative">
+                        <div class="video-thumbnail">
+                            <iframe 
+                                src="https://www.youtube.com/embed/XXk1HObD3j4" 
+                                title="Corporate Brand Story" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen 
+                                class="w-full h-64 rounded-lg">
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xl font-semibold text-white">Corporate Brand Story</h3>
+                            <span class="text-xs bg-red-500 text-white px-2 py-1 rounded">Corporate</span>
+                        </div>
+                        <p class="text-gray-400 mb-4">A professional corporate video showcasing company values, mission, and achievements.</p>
+                    </div>
+                </div>
+
+                <!-- Project 4 -->
+                <div class="project-card bg-gray-900 rounded-lg overflow-hidden" data-category="short-films">
+                    <div class="relative">
+                        <div class="video-thumbnail">
+                            <iframe 
+                                src="https://www.youtube.com/embed/tS2R0SQYKiQ" 
+                                title="Short Film" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen 
+                                class="w-full h-64 rounded-lg">
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xl font-semibold text-white">Short Film</h3>
+                            <span class="text-xs bg-red-500 text-white px-2 py-1 rounded">Short Film</span>
+                        </div>
+                        <p class="text-gray-400 mb-4">An emotional short film with carefully crafted pacing, sound design, and visual storytelling.</p>
+                    </div>
+                </div>
+
+                <!-- Project 5 -->
+                <div class="project-card bg-gray-900 rounded-lg overflow-hidden" data-category="color-grading">
+                    <div class="relative">
+                        <div class="video-thumbnail">
+                            <iframe 
+                                src="https://www.youtube.com/embed/B99VZ0J7xos" 
+                                title="Color Grading Showcase" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen 
+                                class="w-full h-64 rounded-lg">
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xl font-semibold text-white">Color Grading Showcase</h3>
+                            <span class="text-xs bg-red-500 text-white px-2 py-1 rounded">Color Grading</span>
+                        </div>
+                        <p class="text-gray-400 mb-4">A demonstration of professional color grading techniques to enhance the visual appeal and mood of video content.</p>
+                    </div>
+                </div>
+
+                <!-- Project 6 -->
+                <div class="project-card bg-gray-900 rounded-lg overflow-hidden" data-category="documentary">
+                    <div class="relative">
+                        <div class="video-thumbnail">
+                            <iframe 
+                                src="https://www.youtube.com/embed/your link" 
+                                title="Travel Documentary" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen 
+                                class="w-full h-64 rounded-lg">
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xl font-semibold text-white">Travel Documentary</h3>
+                            <span class="text-xs bg-red-500 text-white px-2 py-1 rounded">Documentary</span>
+                        </div>
+                        <p class="text-gray-400 mb-4">A visually stunning travel documentary with seamless transitions and atmospheric color grading.</p>
+                    </div>
+                </div>
+
+                <!-- Project 7 -->
+                <div class="project-card bg-gray-900 rounded-lg overflow-hidden" data-category="all">
+                    <div class="relative">
+                        <div class="video-thumbnail">
+                            <a href="https://drive.google.com/drive/folders/1xS6-aybZcj0tW91i6mFNDGQm-l5a0kVy?usp=drive_link" target="_blank">
+                                <img src="assets/logo-all-portofolio.jpg" alt="Google Drive Folder" class="w-full h-64 rounded-lg object-cover">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xl font-semibold text-white">Google Drive All Portfolio</h3>
+                            <span class="text-xs bg-red-500 text-white px-2 py-1 rounded">Portfolio</span>
+                        </div>
+                        <p class="text-gray-400 mb-4">Click to view my portfolio hosted on Google Drive for easy access and sharing.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimoni Section -->
+    <section id="testimoni" class="py-20 bg-gray-900">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-white">Testimoni</h2>
+                <div class="w-16 h-1 bg-red-500 mx-auto mt-3 mb-6"></div>
+                <p class="text-gray-400 max-w-2xl mx-auto">What my clients say about my work</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Testimoni 1 -->
+                <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                    <p class="text-gray-300 italic mb-4">"Radika's editing skills are top-notch! The final video exceeded our expectations and perfectly captured our brand's essence."</p>
+                    <h4 class="text-white font-semibold">- Stephanie Rudianto, CEO of Creative Agency</h4>
+                </div>
+
+                <!-- Testimoni 2 -->
+                <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                    <p class="text-gray-300 italic mb-4">"Working with Radika was a pleasure. He understood our vision and delivered a stunning video on time."</p>
+                    <h4 class="text-white font-semibold">- Agung, Marketing Manager</h4>
+                </div>
+
+                <!-- Testimoni 3 -->
+                <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                    <p class="text-gray-300 italic mb-4">"The color grading and transitions were flawless. Radika truly brought our story to life."</p>
+                    <h4 class="text-white font-semibold">- Angga, Filmmaker</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gray-900">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-white">Get In Touch</h2>
+                <p class="text-gray-400 mt-4">Ready to start your next video project? Contact me to discuss your vision and how we can bring it to life.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Contact Form -->
+                <div>
+                    <form action="https://formsubmit.co/radikaportofolio@gmail.com" method="POST" class="space-y-6">
+                        <!-- Nonaktifkan CAPTCHA -->
+                        <input type="hidden" name="_captcha" value="false">
+                        <!-- Anti-spam honeypot -->
+                        <input type="text" name="_honey" style="display:none">
+                        <!-- Email penerima -->
+                        <input type="hidden" name="_template" value="table">
+
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-300">Your Name</label>
+                            <input type="text" id="name" name="name" class="w-full mt-2 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="John Doe" required>
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-300">Your Email</label>
+                            <input type="email" id="email" name="email" class="w-full mt-2 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="john@example.com" required>
+                        </div>
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-gray-300">Subject</label>
+                            <input type="text" id="subject" name="subject" class="w-full mt-2 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Project Inquiry" required>
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-300">Message</label>
+                            <textarea id="message" name="message" rows="4" class="w-full mt-2 px-4 py-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Tell me about your project..." required></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-red-500 text-white py-3 rounded-lg font-medium hover:bg-red-600 transition">Send Message</button>
+                    </form>
+                </div>
+                <!-- Contact Information -->
+                <div class="bg-gray-800 p-8 rounded-lg">
+                    <h3 class="text-xl font-semibold text-white mb-6">Contact Information</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-center text-gray-400">
+                            <svg class="w-6 h-6 text-red-500 mr-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M2.003 5.884L10 2l7.997 3.884v6.232L10 18l-7.997-3.884V5.884zM10 16l6-3v-5l-6 3-6-3v5l6 3z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Phone: +6282-2440-46330</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <svg class="w-6 h-6 text-red-500 mr-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2.003 5.884L10 2l7.997 3.884v6.232L10 18l-7.997-3.884V5.884zM10 16l6-3v-5l-6 3-6-3v5l6 3z"></path>
+                            </svg>
+                            <span>Email: radikaportofolio@gmail.com</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <svg class="w-6 h-6 text-red-500 mr-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-8a1 1 0 112 0v3a1 1 0 11-2 0v-3zm1-4a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Location: Pacitan, Jawa Timur, Indonesia</span>
+                        </li>
+                    </ul>
+                    <div class="mt-6">
+                        <h4 class="text-lg font-medium text-white mb-4">Follow Me</h4>
+                        <div class="flex space-x-4">
+                            <!-- Instagram -->
+                            <a href="https://www.instagram.com/radqwerty11" target="_blank" class="text-gray-400 hover:text-white">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19.615 3.184a4.8 4.8 0 00-3.39-1.4H7.775a4.8 4.8 0 00-3.39 1.4 4.8 4.8 0 00-1.385 3.39v10.852a4.8 4.8 0 001.385 3.39 4.8 4.8 0 003.39 1.4h8.45a4.8 4.8 0 003.39-1.4 4.8 4.8 0 001.385-3.39V6.574a4.8 4.8 0 00-1.385-3.39zM12 17.25a5.25 5.25 0 110-10.5 5.25 5.25 0 010 10.5zm6.75-10.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"></path>
+                                </svg>
+                            </a>
+                            <!-- LinkedIn -->
+                            <a href="https://www.linkedin.com/in/radika-putra-pratama-1a0836324" target="_blank" class="text-gray-400 hover:text-white">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.784-1.75-1.75s.784-1.75 1.75-1.75 1.75.784 1.75 1.75-.784 1.75-1.75 1.75zm13.5 11.268h-3v-5.5c0-1.379-.028-3.156-1.922-3.156-1.922 0-2.218 1.503-2.218 3.053v5.603h-3v-10h2.881v1.367h.041c.401-.759 1.379-1.559 2.841-1.559 3.041 0 3.603 2.003 3.603 4.605v5.587z"></path>
+                                </svg>
+                            </a>
+                            <!-- TikTok -->
+                            <a href="https://www.tiktok.com/@raddddk11?is_from_webapp=1&sender_device=pc" target="_blank" class="text-gray-400 hover:text-white">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2a10 10 0 00-10 10v4a10 10 0 0010 10h4a10 10 0 0010-10v-4a10 10 0 00-10-10h-4zm2.5 5.5v3.1a4.5 4.5 0 11-2.5 4.1v-3.1h1.5v1.6a2.5 2.5 0 102.5-2.5v-3.2h-1.5z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        ...
+    </section>
+
+    <script>
+        // Filter functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const projects = document.querySelectorAll('.project-card');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const filter = button.getAttribute('data-filter');
+
+                    // Update active button
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    // Filter projects
+                    projects.forEach(project => {
+                        if (filter === 'all' || project.getAttribute('data-category') === filter) {
+                            project.style.display = 'block';
+                        } else {
+                            project.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+
+        // Ambil elemen input
+        const nameInput = document.querySelector('#name');
+        const emailInput = document.querySelector('#email');
+        const subjectInput = document.querySelector('#subject');
+        const messageInput = document.querySelector('#message');
+
+        // Hapus data dari localStorage saat halaman dimuat
+        localStorage.removeItem('formData');
+
+        // Pastikan kolom input kosong
+        nameInput.value = '';
+        emailInput.value = '';
+        subjectInput.value = '';
+        messageInput.value = '';
+
+        const contactForm = document.querySelector('form'); // Pilih formulir
+
+        // Simpan data ke localStorage saat formulir di-submit
+        contactForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Mencegah pengiriman formulir default
+
+            // Ambil nilai dari input
+            const name = nameInput.value;
+            const email = emailInput.value;
+            const subject = subjectInput.value;
+            const message = messageInput.value;
+
+            // Validasi apakah semua field diisi
+            if (name && email && subject && message) {
+                console.log('Form submitted successfully!');
+                console.log(`Name: ${name}`);
+                console.log(`Email: ${email}`);
+                console.log(`Subject: ${subject}`);
+                console.log(`Message: ${message}`);
+                alert('Thank you for your message!');
+
+                // Simpan data ke localStorage
+                const formData = { name, email, subject, message };
+                localStorage.setItem('formData', JSON.stringify(formData));
+
+                contactForm.reset(); // Reset formulir setelah pengiriman
+            } else {
+                alert('Please fill out all fields before submitting.');
+            }
+        });
+    </script>
+</body>
+</html>
